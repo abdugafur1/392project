@@ -1,0 +1,33 @@
+type User @table {
+  email: String!
+  displayName: String!
+  avatarUrl: String
+  bio: String
+}
+
+type Project @table {
+  title: String!
+  owner: User!
+  description: String
+  status: String
+}
+
+type Task @table {
+  title: String!
+  project: Project!
+  status: String!
+  dueDate: Date
+  priority: Int
+}
+
+type Note @table {
+  content: String!
+  project: Project!
+  tags: [String]
+}
+
+type Profile @table {
+  user: User!
+  themePreference: String!
+  notificationsEnabled: Boolean
+}
