@@ -37,10 +37,19 @@ const App = () => (
     {Object.values(schedules).map((schedule) => (
       <section key={schedule.title}>
         <h1>{schedule.title}</h1>
-        <ul>
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
           {Object.values(schedule.courses).map((course) => (
-            <li key={`${course.term}-${course.number}`}>
-              {course.term} CS{course.number}: {course.title}
+            <li
+              className="flex h-full flex-col gap-3 rounded-lg border border-gray-500 p-4"
+              key={`${course.term}-${course.number}`}
+            >
+              <p className="font-bold">
+                {course.term} CS{course.number}
+              </p>
+              <p>{course.title}</p>
+              <p className="mt-auto border-t border-current pt-3">
+                {course.meets}
+              </p>
             </li>
           ))}
         </ul>
