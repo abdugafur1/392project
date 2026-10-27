@@ -1,17 +1,7 @@
 import './App.css';
 import { useJsonQuery } from './utilities/fetch';
-
-interface Course {
-  term: string;
-  number: string;
-  meets: string;
-  title: string;
-}
-
-interface Schedule {
-  title: string;
-  courses: Record<string, Course>;
-}
+import { TermPage } from './components/TermPage';
+import type { Course, Schedule } from './types/Course';
 
 interface CourseResponse {
   schedules: Record<string, Schedule>;
@@ -56,31 +46,7 @@ const App = () => {
     return <p role="alert">Unable to load courses: invalid response data.</p>;
   }
 
-  return (
-    <main>
-      {Object.values(data.schedules).map((schedule) => (
-        <section key={schedule.title}>
-          <h1>{schedule.title}</h1>
-          <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
-            {Object.values(schedule.courses).map((course) => (
-              <li
-                className="flex h-full flex-col gap-3 rounded-lg border border-gray-500 p-4"
-                key={`${course.term}-${course.number}`}
-              >
-                <p className="font-bold">
-                  {course.term} CS{course.number}
-                </p>
-                <p>{course.title}</p>
-                <p className="mt-auto border-t border-current pt-3">
-                  {course.meets}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
-    </main>
-  );
+  return <TermPage schedules={data.schedules} />;
 };
 
 export default App;
