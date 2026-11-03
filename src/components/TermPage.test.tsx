@@ -48,5 +48,35 @@ describe('TermPage', () => {
     ).toBe('true');
     expect(screen.getByText('Winter course')).toBeTruthy();
     expect(screen.queryByText('Fall course')).toBeNull();
+
+    const winterCourse = screen.getByRole('button', { name: /Winter course/ });
+    fireEvent.click(winterCourse);
+    expect(winterCourse.getAttribute('aria-pressed')).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fall' }));
+    const fallCourse = screen.getByRole('button', { name: /Fall course/ });
+    fireEvent.click(fallCourse);
+    expect(fallCourse.getAttribute('aria-pressed')).toBe('true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Winter' }));
+    expect(
+      screen
+        .getByRole('button', { name: /Winter course/ })
+        .getAttribute('aria-pressed'),
+    ).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /Winter course/ }));
+    expect(
+      screen
+        .getByRole('button', { name: /Winter course/ })
+        .getAttribute('aria-pressed'),
+    ).toBe('false');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fall' }));
+    const selectedFallCourse = screen.getByRole('button', {
+      name: /Fall course/,
+    });
+    expect(selectedFallCourse.getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(selectedFallCourse);
+    expect(selectedFallCourse.getAttribute('aria-pressed')).toBe('false');
   });
 });

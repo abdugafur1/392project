@@ -9,6 +9,23 @@ interface TermPageProps {
 
 export const TermPage = ({ schedules }: TermPageProps) => {
   const [selectedTerm, setSelectedTerm] = useState<Term>('Fall');
+  const [selectedCourseIds, setSelectedCourseIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const toggleCourse = (courseId: string) => {
+    setSelectedCourseIds((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+
+      if (nextSelection.has(courseId)) {
+        nextSelection.delete(courseId);
+      } else {
+        nextSelection.add(courseId);
+      }
+
+      return nextSelection;
+    });
+  };
 
   return (
     <main>
@@ -21,6 +38,8 @@ export const TermPage = ({ schedules }: TermPageProps) => {
           key={schedule.title}
           schedule={schedule}
           selectedTerm={selectedTerm}
+          selectedCourseIds={selectedCourseIds}
+          onCourseToggle={toggleCourse}
         />
       ))}
     </main>
