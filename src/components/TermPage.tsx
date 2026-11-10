@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Course, Schedule } from '../types/Course';
+import { hasConflictWithAnySelectedCourse } from '../utilities/courseConflict';
 import { CourseList } from './CourseList';
 import { TermSelector, type Term } from './TermSelector';
 
@@ -16,9 +17,35 @@ export const TermPage = ({ schedules }: TermPageProps) => {
   );
   const [isCoursePlanOpen, setIsCoursePlanOpen] = useState(false);
 
-  const selectedCourses = Object.values(schedules)
-    .flatMap((schedule) => Object.values(schedule.courses))
-    .filter((course) => selectedCourseIds.has(getCourseId(course)));
+  const allCourses = useMemo(
+    () =>
+      Object.values(schedules).flatMap((schedule) =>
+        Object.values(schedule.courses),
+      ),
+    [schedules],
+  );
+
+  const selectedCourses = allCourses.filter((course) =>
+    selectedCourseIds.has(getCourseId(course)),
+  );
+
+  const disabledCourseIds = useMemo(() => {
+    const nextDisabledCourseIds = new Set<string>();
+
+    allCourses.forEach((course) => {
+      const courseId = getCourseId(course);
+
+      if (selectedCourseIds.has(courseId)) {
+        return;
+      }
+
+      if (hasConflictWithAnySelectedCourse(course, selectedCourses)) {
+        nextDisabledCourseIds.add(courseId);
+      }
+    });
+
+    return nextDisabledCourseIds;
+  }, [allCourses, selectedCourseIds, selectedCourses]);
 
   const toggleCourse = (courseId: string) => {
     setSelectedCourseIds((currentSelection) => {
@@ -26,10 +53,24 @@ export const TermPage = ({ schedules }: TermPageProps) => {
 
       if (nextSelection.has(courseId)) {
         nextSelection.delete(courseId);
-      } else {
-        nextSelection.add(courseId);
+        return nextSelection;
       }
 
+      const candidateCourse = allCourses.find(
+        (course) => getCourseId(course) === courseId,
+      );
+
+      if (!candidateCourse) {
+        return currentSelection;
+      }
+
+      if (
+        hasConflictWithAnySelectedCourse(candidateCourse, selectedCourses)
+      ) {
+        return currentSelection;
+      }
+
+      nextSelection.add(courseId);
       return nextSelection;
     });
   };
@@ -57,6 +98,7 @@ export const TermPage = ({ schedules }: TermPageProps) => {
           schedule={schedule}
           selectedTerm={selectedTerm}
           selectedCourseIds={selectedCourseIds}
+          disabledCourseIds={disabledCourseIds}
           onCourseToggle={toggleCourse}
         />
       ))}
