@@ -107,4 +107,31 @@ describe('TermPage', () => {
     fireEvent.click(screen.getByRole('dialog'));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  it('opens a populated course edit form and returns to the list on cancel', () => {
+    render(<TermPage schedules={schedules} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit Fall 2026 CS101' }));
+
+    const form = screen.getByRole('form');
+    expect(screen.getByLabelText('Course title')).toHaveProperty(
+      'value',
+      'Fall course',
+    );
+    expect(screen.getByLabelText('Meeting times')).toHaveProperty(
+      'value',
+      'Monday',
+    );
+    expect(
+      screen.queryByRole('button', { name: /submit/i }),
+    ).toBeNull();
+
+    fireEvent.submit(form);
+    expect(screen.getByRole('form')).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByText('Fall course')).toBeTruthy();
+    expect(screen.queryByRole('form')).toBeNull();
+  });
 });

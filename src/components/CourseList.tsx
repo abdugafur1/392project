@@ -7,6 +7,7 @@ interface CourseListProps {
   selectedCourseIds: ReadonlySet<string>;
   disabledCourseIds: ReadonlySet<string>;
   onCourseToggle: (courseId: string) => void;
+  onCourseEdit: (course: Course) => void;
 }
 
 const isInSelectedTerm = (course: Course, selectedTerm: Term) => {
@@ -25,6 +26,7 @@ export const CourseList = ({
   selectedCourseIds,
   disabledCourseIds,
   onCourseToggle,
+  onCourseEdit,
 }: CourseListProps) => (
   <section>
     <h1>{schedule.title}</h1>
@@ -37,17 +39,20 @@ export const CourseList = ({
           const isDisabled = disabledCourseIds.has(courseId) && !isSelected;
 
           return (
-            <li key={`${course.term}-${course.number}`}>
+            <li
+              key={`${course.term}-${course.number}`}
+              className={[
+                'flex h-full flex-col gap-3 rounded-lg border p-4 shadow-sm',
+                isDisabled
+                  ? 'border-gray-300 bg-gray-100 text-gray-400 opacity-50'
+                  : 'border-gray-500 bg-white text-black',
+                isSelected ? 'bg-blue-100 shadow-md' : '',
+              ].join(' ')}
+            >
               <button
                 aria-disabled={isDisabled}
                 aria-pressed={isSelected}
-                className={[
-                  'flex h-full w-full flex-col gap-3 rounded-lg border p-4 text-left shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-                  isDisabled
-                    ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400 opacity-50'
-                    : 'cursor-pointer border-gray-500 bg-white text-black hover:bg-gray-100',
-                  isSelected ? 'bg-blue-100 shadow-md' : '',
-                ].join(' ')}
+                className="flex flex-col gap-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 disabled={isDisabled}
                 onClick={() => onCourseToggle(courseId)}
                 type="button"
@@ -66,6 +71,14 @@ export const CourseList = ({
                 <span className="mt-auto border-t border-current pt-3">
                   {course.meets}
                 </span>
+              </button>
+              <button
+                aria-label={`Edit ${course.term} CS${course.number}`}
+                className="self-start rounded border border-gray-400 px-3 py-1 text-sm font-medium hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                onClick={() => onCourseEdit(course)}
+                type="button"
+              >
+                Edit
               </button>
             </li>
           );

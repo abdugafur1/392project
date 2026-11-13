@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Course, Schedule } from '../types/Course';
 import { hasConflictWithAnySelectedCourse } from '../utilities/courseConflict';
+import { CourseEditForm } from './CourseEditForm';
 import { CourseList } from './CourseList';
 import { TermSelector, type Term } from './TermSelector';
 
@@ -16,6 +17,7 @@ export const TermPage = ({ schedules }: TermPageProps) => {
     () => new Set(),
   );
   const [isCoursePlanOpen, setIsCoursePlanOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   const allCourses = useMemo(
     () =>
@@ -77,33 +79,43 @@ export const TermPage = ({ schedules }: TermPageProps) => {
 
   return (
     <main className="space-y-6 p-4">
-      <div className="flex justify-end">
-        <button
-          className="cursor-pointer rounded border border-gray-500 bg-white px-4 py-2 font-medium shadow-sm transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          onClick={() => setIsCoursePlanOpen(true)}
-          type="button"
-        >
-          Course Plan
-        </button>
-      </div>
-
-      <TermSelector
-        onTermChange={setSelectedTerm}
-        selectedTerm={selectedTerm}
-      />
-
-      {Object.values(schedules).map((schedule) => (
-        <CourseList
-          key={schedule.title}
-          schedule={schedule}
-          selectedTerm={selectedTerm}
-          selectedCourseIds={selectedCourseIds}
-          disabledCourseIds={disabledCourseIds}
-          onCourseToggle={toggleCourse}
+      {editingCourse ? (
+        <CourseEditForm
+          course={editingCourse}
+          onCancel={() => setEditingCourse(null)}
         />
-      ))}
+      ) : (
+        <>
+          <div className="flex justify-end">
+            <button
+              className="cursor-pointer rounded border border-gray-500 bg-white px-4 py-2 font-medium shadow-sm transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              onClick={() => setIsCoursePlanOpen(true)}
+              type="button"
+            >
+              Course Plan
+            </button>
+          </div>
 
-      {isCoursePlanOpen && (
+          <TermSelector
+            onTermChange={setSelectedTerm}
+            selectedTerm={selectedTerm}
+          />
+
+          {Object.values(schedules).map((schedule) => (
+            <CourseList
+              key={schedule.title}
+              schedule={schedule}
+              selectedTerm={selectedTerm}
+              selectedCourseIds={selectedCourseIds}
+              disabledCourseIds={disabledCourseIds}
+              onCourseToggle={toggleCourse}
+              onCourseEdit={setEditingCourse}
+            />
+          ))}
+        </>
+      )}
+
+      {!editingCourse && isCoursePlanOpen && (
         <div
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
